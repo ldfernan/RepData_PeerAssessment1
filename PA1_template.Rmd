@@ -137,7 +137,7 @@ str(act4)
 ```
 
 Now lets create a panel plot using the factor variable we just created for weekend. Note that the steps have been averaged across weekend factor varible as well as interval.
-```{r}
+```{r panel_plot}
 act4<-summarize(group_by(act4,wk_day,interval),mean(steps))
 colnames(act4)[3]<-"avg_steps"
 xyplot(avg_steps ~ interval| wk_day,data = act4,type = "l",xlab = "Interval",ylab = "Number of steps",layout=c(1,2))

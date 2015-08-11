@@ -227,13 +227,9 @@ Now lets create a panel plot using the factor variable we just created for weeke
 ```r
 act4<-summarize(group_by(act4,wk_day,interval),mean(steps))
 colnames(act4)[3]<-"avg_steps"
-xyplot(avg_steps ~ interval| wk_day,    data = act4,
-           type = "l",
-           xlab = "Interval",
-           ylab = "Number of steps",
-           layout=c(1,2))
+xyplot(avg_steps ~ interval| wk_day,data = act4,type = "l",xlab = "Interval",ylab = "Number of steps",layout=c(1,2))
 ```
 
-![plot of chunk unnamed-chunk-13](figure/unnamed-chunk-13-1.png) 
+![plot of chunk panel_plot](figure/panel_plot-1.png) 
 
-
+based on the panel plot, there is a difference in activity patterns between weekday and weekend. During weekends, the activity levels are consistently high throughout the day, whereas during weekdays there is a spike in activity mostly during the start and end of the day only.
