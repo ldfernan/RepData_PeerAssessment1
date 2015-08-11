@@ -17,9 +17,10 @@ require(knitr)
 require(lattice)
 ```
 
-We will read the input activity data from the CSV file
+We will read the input activity data from the CSV file. Note that we will exclude NAs from the analysis.
 ```{r echo = TRUE}
-activity<-read.csv(file="activity.csv",na.strings = "NA")
+act<-read.csv(file="activity.csv",na.strings = "NA")
+activity<-na.exclude(act)
 str(activity)
 head(activity)
 summary(activity)
@@ -28,6 +29,7 @@ summary(activity)
 We will perform some basic data preparation to convert date column from factor to a date data type.
 ```{r echo = TRUE}
 activity<-mutate(activity, date=as.Date(as.character(date)))
+act<-mutate(act, date=as.Date(as.character(date)))
 ```
 
 ## What is mean total number of steps taken per day?
@@ -40,7 +42,7 @@ colnames(act1)[2]<-"sum_steps"
 
 We will plot a histogram to see the distribution. 
 ```{r histogram,fig.align="left", fig.height=6, fig.width=6,echo = TRUE}
-hist(act1$sum_steps,col="green",main="Histogram of steps taken per day",xlab="Total Steps taken per day")
+hist(act1$sum_steps,col="green",breaks=25,main="Histogram of steps taken per day",xlab="Total Steps taken per day")
 ```
 
 We will now calculate the mean and median of the the total number of steps taken per day
@@ -80,16 +82,16 @@ The maximum steps, on average per interval, is `r steps` and it occurs during th
 ## Imputing missing values
 
 ```{r echo = TRUE}
-na_count<-length(activity$steps[is.na(activity$steps)])
+na_count<-length(act$steps[is.na(act$steps)])
 ```
 
 The total number of NAs in steps is `r na_count`.  
 
-We will create a new data frame called act4. 
+We will create a new data frame called act4. Act4 contains NAs, which will be replaced.
 
 ```{r echo = TRUE}
 act3<-activity
-act4<-activity
+act4<-act
 act3<-summarize(group_by(activity,date,interval),mean(steps,na.rm=TRUE))
 colnames(act3)[3]<-"mean_steps"
 mean_steps<-mean(act3$mean_steps,na.rm = TRUE)
@@ -106,7 +108,7 @@ colnames(act5)[2]<-"sum_steps"
 
 We will plot a histogram to see the distribution. 
 ```{r histogram_2,fig.align="left", fig.height=6, fig.width=6,echo = TRUE}
-hist(act5$sum_steps,col="green",main="Histogram of steps taken per day",xlab="Total Steps taken per day")
+hist(act5$sum_steps,col="green",breaks=25,main="Histogram of steps taken per day",xlab="Total Steps taken per day")
 ```
 
 We will now calculate the mean and median of the the total number of steps taken per day
@@ -120,7 +122,7 @@ print(paste("Mean after imputed NA is:",mean_act_na))
 print(paste("Median after imputed NA is:",med_act_na))
 
 ```
-Both mean and median values have increased slightly after NA values have been imputed.
+Both mean values are same before and after NAs have been replaced.This is because we have used the mean per date per interval for all NA values, hence the overall mean are not affected. The median values have increased by a very slight amount because of the addition of the means to NA's, ushing the median out by a small margin. 
 
 
 ## Are there differences in activity patterns between weekdays and weekends?

@@ -18,18 +18,21 @@ require(knitr)
 require(lattice)
 ```
 
-We will read the input activity data from the CSV file
+We will read the input activity data from the CSV file. Note that we will exclude NAs from the analysis.
 
 ```r
-activity<-read.csv(file="activity.csv",na.strings = "NA")
+act<-read.csv(file="activity.csv",na.strings = "NA")
+activity<-na.exclude(act)
 str(activity)
 ```
 
 ```
-## 'data.frame':	17568 obs. of  3 variables:
-##  $ steps   : int  NA NA NA NA NA NA NA NA NA NA ...
-##  $ date    : Factor w/ 61 levels "2012-10-01","2012-10-02",..: 1 1 1 1 1 1 1 1 1 1 ...
+## 'data.frame':	15264 obs. of  3 variables:
+##  $ steps   : int  0 0 0 0 0 0 0 0 0 0 ...
+##  $ date    : Factor w/ 61 levels "2012-10-01","2012-10-02",..: 2 2 2 2 2 2 2 2 2 2 ...
 ##  $ interval: int  0 5 10 15 20 25 30 35 40 45 ...
+##  - attr(*, "na.action")=Class 'exclude'  Named int [1:2304] 1 2 3 4 5 6 7 8 9 10 ...
+##   .. ..- attr(*, "names")= chr [1:2304] "1" "2" "3" "4" ...
 ```
 
 ```r
@@ -37,13 +40,13 @@ head(activity)
 ```
 
 ```
-##   steps       date interval
-## 1    NA 2012-10-01        0
-## 2    NA 2012-10-01        5
-## 3    NA 2012-10-01       10
-## 4    NA 2012-10-01       15
-## 5    NA 2012-10-01       20
-## 6    NA 2012-10-01       25
+##     steps       date interval
+## 289     0 2012-10-02        0
+## 290     0 2012-10-02        5
+## 291     0 2012-10-02       10
+## 292     0 2012-10-02       15
+## 293     0 2012-10-02       20
+## 294     0 2012-10-02       25
 ```
 
 ```r
@@ -52,19 +55,20 @@ summary(activity)
 
 ```
 ##      steps                date          interval     
-##  Min.   :  0.00   2012-10-01:  288   Min.   :   0.0  
-##  1st Qu.:  0.00   2012-10-02:  288   1st Qu.: 588.8  
-##  Median :  0.00   2012-10-03:  288   Median :1177.5  
-##  Mean   : 37.38   2012-10-04:  288   Mean   :1177.5  
-##  3rd Qu.: 12.00   2012-10-05:  288   3rd Qu.:1766.2  
-##  Max.   :806.00   2012-10-06:  288   Max.   :2355.0  
-##  NA's   :2304     (Other)   :15840
+##  Min.   :  0.00   2012-10-02:  288   Min.   :   0.0  
+##  1st Qu.:  0.00   2012-10-03:  288   1st Qu.: 588.8  
+##  Median :  0.00   2012-10-04:  288   Median :1177.5  
+##  Mean   : 37.38   2012-10-05:  288   Mean   :1177.5  
+##  3rd Qu.: 12.00   2012-10-06:  288   3rd Qu.:1766.2  
+##  Max.   :806.00   2012-10-07:  288   Max.   :2355.0  
+##                   (Other)   :13536
 ```
 
 We will perform some basic data preparation to convert date column from factor to a date data type.
 
 ```r
 activity<-mutate(activity, date=as.Date(as.character(date)))
+act<-mutate(act, date=as.Date(as.character(date)))
 ```
 
 ## What is mean total number of steps taken per day?
@@ -79,7 +83,7 @@ colnames(act1)[2]<-"sum_steps"
 We will plot a histogram to see the distribution. 
 
 ```r
-hist(act1$sum_steps,col="green",main="Histogram of steps taken per day",xlab="Total Steps taken per day")
+hist(act1$sum_steps,col="green",breaks=25,main="Histogram of steps taken per day",xlab="Total Steps taken per day")
 ```
 
 <img src="figure/histogram-1.png" title="plot of chunk histogram" alt="plot of chunk histogram" style="display: block; margin: auto auto auto 0;" />
@@ -92,7 +96,7 @@ mean_act<-mean(act1$sum_steps)
 med_act<-median(act1$sum_steps)
 ```
 
-The mean and median of the total number of steps taken per day are 9354.2295082 and 10395 respectively.
+The mean and median of the total number of steps taken per day are 1.0766189 &times; 10<sup>4</sup> and 10765 respectively.
 
 
 ## What is the average daily activity pattern?
@@ -128,17 +132,17 @@ The maximum steps, on average per interval, is 206.1698113 and it occurs during 
 
 
 ```r
-na_count<-length(activity$steps[is.na(activity$steps)])
+na_count<-length(act$steps[is.na(act$steps)])
 ```
 
 The total number of NAs in steps is 2304.  
 
-We will create a new data frame called act4. 
+We will create a new data frame called act4. Act4 contains NAs, which will be replaced.
 
 
 ```r
 act3<-activity
-act4<-activity
+act4<-act
 act3<-summarize(group_by(activity,date,interval),mean(steps,na.rm=TRUE))
 colnames(act3)[3]<-"mean_steps"
 mean_steps<-mean(act3$mean_steps,na.rm = TRUE)
@@ -157,7 +161,7 @@ colnames(act5)[2]<-"sum_steps"
 We will plot a histogram to see the distribution. 
 
 ```r
-hist(act5$sum_steps,col="green",main="Histogram of steps taken per day",xlab="Total Steps taken per day")
+hist(act5$sum_steps,col="green",breaks=25,main="Histogram of steps taken per day",xlab="Total Steps taken per day")
 ```
 
 <img src="figure/histogram_2-1.png" title="plot of chunk histogram_2" alt="plot of chunk histogram_2" style="display: block; margin: auto auto auto 0;" />
@@ -172,7 +176,7 @@ print(paste("Mean before imputed NA is:",mean_act))
 ```
 
 ```
-## [1] "Mean before imputed NA is: 9354.22950819672"
+## [1] "Mean before imputed NA is: 10766.1886792453"
 ```
 
 ```r
@@ -180,7 +184,7 @@ print(paste("Median before imputed NA is:",med_act))
 ```
 
 ```
-## [1] "Median before imputed NA is: 10395"
+## [1] "Median before imputed NA is: 10765"
 ```
 
 ```r
@@ -198,7 +202,7 @@ print(paste("Median after imputed NA is:",med_act_na))
 ```
 ## [1] "Median after imputed NA is: 10766.1886792453"
 ```
-Both mean and median values have increased slightly after NA values have been imputed.
+Both mean values are same before and after NAs have been replaced.This is because we have used the mean per date per interval for all NA values, hence the overall mean are not affected. The median values have increased by a very slight amount because of the addition of the means to NA's, ushing the median out by a small margin. 
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
