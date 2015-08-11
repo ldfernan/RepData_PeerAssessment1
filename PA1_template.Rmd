@@ -11,14 +11,14 @@ Reproducible Research: Peer Assessment 1
 ## Loading and preprocessing the data
 
 Lets load the required libraries
-```{r}
+```{r echo = TRUE}
 require(dplyr)
 require(knitr)
 require(lattice)
 ```
 
 We will read the input activity data from the CSV file
-```{r}
+```{r echo = TRUE}
 activity<-read.csv(file="activity.csv",na.strings = "NA")
 str(activity)
 head(activity)
@@ -26,26 +26,26 @@ summary(activity)
 ```
 
 We will perform some basic data preparation to convert date column from factor to a date data type.
-```{r}
+```{r echo = TRUE}
 activity<-mutate(activity, date=as.Date(as.character(date)))
 ```
 
 ## What is mean total number of steps taken per day?
 
 First we will calculate the total number of steps taken per day. Note that NA are ignored
-```{r}
+```{r echo = TRUE}
 act1<-summarize(group_by(activity,date),sum(steps,na.rm=TRUE))
 colnames(act1)[2]<-"sum_steps"
 ```
 
 We will plot a histogram to see the distribution. 
-```{r histogram,fig.align="left", fig.height=6, fig.width=6}
+```{r histogram,fig.align="left", fig.height=6, fig.width=6,echo = TRUE}
 hist(act1$sum_steps,col="green",main="Histogram of steps taken per day",xlab="Total Steps taken per day")
 ```
 
 We will now calculate the mean and median of the the total number of steps taken per day
 
-```{r}
+```{r echo = TRUE}
 mean_act<-mean(act1$sum_steps)
 med_act<-median(act1$sum_steps)
 ```
@@ -57,20 +57,20 @@ The mean and median of the total number of steps taken per day are `r mean_act` 
 
 First we will calculate the average number of steps taken per interval. Note that NA are ignored
 
-```{r}
+```{r echo = TRUE}
 act2<-summarize(group_by(activity,interval),mean(steps,na.rm=TRUE))
 colnames(act2)[2]<-"avg_steps"
 ```
 
 We will now plot a time series of interval on x-axis and average steps per interval on y-axis.
 
-```{r plot, fig.align="left", fig.height=6,fig.width=6}
+```{r plot, fig.align="left", fig.height=6,fig.width=6,echo = TRUE}
 with(act2,plot(act2$interval,act2$avg_steps,type="l", xlab="Interval", ylab="Average Steps Per Interval", main="Line plot of Avg_Steps vs Interval"))
 ```
 
 Lets find out the interval which, on average, has the highest number of steps
 
-```{r}
+```{r echo = TRUE}
 interval<-act2[act2$avg_steps==max(act2$avg_steps),]$interval
 steps<-act2[act2$avg_steps==max(act2$avg_steps),]$avg_steps
 ```
@@ -79,7 +79,7 @@ The maximum steps, on average per interval, is `r steps` and it occurs during th
 
 ## Imputing missing values
 
-```{r}
+```{r echo = TRUE}
 na_count<-length(activity$steps[is.na(activity$steps)])
 ```
 
@@ -87,7 +87,7 @@ The total number of NAs in steps is `r na_count`.
 
 We will create a new data frame called act4. 
 
-```{r}
+```{r echo = TRUE}
 act3<-activity
 act4<-activity
 act3<-summarize(group_by(activity,date,interval),mean(steps,na.rm=TRUE))
@@ -99,19 +99,19 @@ All NA values from steps have been replaced with the mean of the steps per day p
 
 To calculate mean and median values,  we will calculate the total number of steps taken per day. Note that NA are ignored
 
-```{r}
+```{r echo = TRUE}
 act5<-summarize(group_by(act4,date),sum(steps,na.rm=TRUE))
 colnames(act5)[2]<-"sum_steps"
 ```
 
 We will plot a histogram to see the distribution. 
-```{r histogram_2,fig.align="left", fig.height=6, fig.width=6}
+```{r histogram_2,fig.align="left", fig.height=6, fig.width=6,echo = TRUE}
 hist(act5$sum_steps,col="green",main="Histogram of steps taken per day",xlab="Total Steps taken per day")
 ```
 
 We will now calculate the mean and median of the the total number of steps taken per day
 
-```{r}
+```{r echo = TRUE}
 mean_act_na<-mean(act5$sum_steps)
 med_act_na<-median(act5$sum_steps)
 print(paste("Mean before imputed NA is:",mean_act))
@@ -127,7 +127,7 @@ Both mean and median values have increased slightly after NA values have been im
 
 Lets use an existing data frame called act4 and add a factor variable (wk_day).
 
-```{r}
+```{r echo = TRUE}
 act4<-mutate(act4,wk_day=weekdays(date))
 act4$wk_day[act4$wk_day %in% c("Saturday","Sunday")]<-"weekend"
 act4$wk_day[!(act4$wk_day %in% c("weekend"))]<-"weekday"
@@ -137,7 +137,8 @@ str(act4)
 ```
 
 Now lets create a panel plot using the factor variable we just created for weekend. Note that the steps have been averaged across weekend factor varible as well as interval.
-```{r panel_plot}
+
+```{r panel_plot,fig.align="left", fig.height=6, fig.width=6,echo = TRUE}
 act4<-summarize(group_by(act4,wk_day,interval),mean(steps))
 colnames(act4)[3]<-"avg_steps"
 xyplot(avg_steps ~ interval| wk_day,data = act4,type = "l",xlab = "Interval",ylab = "Number of steps",layout=c(1,2))
